@@ -65,7 +65,6 @@ const EightDReportModal: React.FC<EightDReportModalProps> = ({ entry, onSave, on
     }
   }, [entry]);
 
-  // AI 생성 후 textarea 높이 일괄 조정
   useEffect(() => {
     if (!isGenerating && report.rootCause.whyHappened.some(w => w)) {
       setTimeout(() => {
@@ -217,7 +216,7 @@ const EightDReportModal: React.FC<EightDReportModalProps> = ({ entry, onSave, on
   const sectionHeaderStyle = "bg-slate-200 p-0.5 px-2 text-[10.5px] font-bold border-b border-slate-800 text-slate-900";
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black/70 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-[150] flex flex-col bg-black/70 backdrop-blur-sm overflow-y-auto">
       <div className="flex-1 flex justify-center py-4 px-4 sm:px-6 md:px-8">
         <div className="bg-white w-full max-w-[1050px] rounded shadow-2xl overflow-hidden border-2 border-slate-800 flex flex-col h-fit mb-8">
           
