@@ -34,7 +34,6 @@ const App: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // 비밀번호를 SSAT2026으로 설정
     if (password === 'SSAT2026') {
       setIsAuthenticated(true);
       sessionStorage.setItem('isAuth', 'true');
@@ -99,7 +98,7 @@ const App: React.FC = () => {
   const handleSave = async (entry: NCREntry) => {
     try {
       const dbPayload = {
-        ...(editingEntry ? { id: entry.id } : {}),
+        ...(entry.id ? { id: entry.id } : {}),
         month: entry.month, day: entry.day, source: entry.source, customer: entry.customer,
         model: entry.model, part_name: entry.partName, part_no: entry.partNo,
         defect_content: entry.defectContent, outflow_cause: entry.outflowCause,
@@ -115,50 +114,50 @@ const App: React.FC = () => {
       await fetchEntries();
       setShowForm(false);
       setEditingEntry(null);
-      console.log('Saved successfully');
     } catch (e: any) {
       console.error(`Save failed: ${e.message}`);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!id) {
-      alert('삭제할 항목의 식별자(ID)가 없습니다.');
-      return;
-    }
-
+    if (!id || !window.confirm('정말로 이 항목을 삭제하시겠습니까?')) return;
     try {
-      const { error } = await supabase
-        .from('ncr_entries')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('ncr_entries').delete().eq('id', id);
       if (error) throw error;
-
       setData(prev => prev.filter(item => item.id !== id));
       setShowForm(false);
       setEditingEntry(null);
-      
-      console.log('Successfully deleted');
     } catch (e: any) {
-      console.error('Delete Error Detail:', e);
+      console.error('Delete Error:', e);
     }
   };
 
-  const handleSave8D = async (id: string, eightDData: EightDData) => {
+  const handleSave8D = async (id: string, updatedFields: Partial<NCREntry>) => {
     try {
+      // 8D 리포트에서 생성된 원인/대책/파일/상태를 모두 Supabase에 반영
+      const dbPayload = {
+        eight_d_data: updatedFields.eightDData,
+        root_cause: updatedFields.rootCause,
+        countermeasure: updatedFields.countermeasure,
+        attachments: updatedFields.attachments,
+        status: updatedFields.status || 'Closed',
+        progress_rate: updatedFields.progressRate || 100
+      };
+
       const { error } = await supabase
         .from('ncr_entries')
-        .update({ 
-          eight_d_data: eightDData, 
-          status: 'Closed', 
-          progress_rate: 100 
-        })
+        .update(dbPayload)
         .eq('id', id);
+        
       if (error) throw error;
+      
+      // 즉시 리스트 새로고침
       await fetchEntries();
+      setShowEightD(false);
+      setSelectedFor8D(null);
     } catch (e: any) {
-      console.error(`8D Report Save failed: ${e.message}`);
+      console.error(`8D Report Sync Save failed: ${e.message}`);
+      alert('데이터 동기화 중 오류가 발생했습니다.');
     }
   };
 
