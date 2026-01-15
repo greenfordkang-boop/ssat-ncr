@@ -1,0 +1,5 @@
+{
+  "name": "SSAT NCR ",
+  "description": "품질 관리 및 부적합 사항(NCR) 현황을 추적하고 대책을 관리하는 전산 시스템입니다. 고객사별 통계 대시보드와 상세 내역 관리 기능을 제공합니다.",
+  "requestFramePermissions": []
+}
